@@ -670,6 +670,7 @@ display:none !important;
 }
 
 .request-card{
+    position: relative;
     background:burlywood;
     border-radius:12px;
     padding:20px;
@@ -775,9 +776,11 @@ display:none !important;
 
     cursor:pointer;
 
-    color:#999;
+    color:gray;
 
     font-size:18px;
+    padding: 5px;
+    transition: .2s;
 
 }
 
