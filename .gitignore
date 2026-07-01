@@ -1,0 +1,5 @@
+node_modules/
+.vscode/
+server-error.log
+server-output.log
+supabase/.temp/

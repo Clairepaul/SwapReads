@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>SwapReads</title>
+    <link rel="icon" href="../assets/logo1.png">
+    <script src="../js/theme.js"></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!--Header-->
+        <header class="header">
+            <div class="logo-sec">
+                <img src="../assets/logo1.png" alt="logo">
+                <div class="logo-text">
+                <h2>SwapReads</h2>
+                <p class="slogan">Where Readers Meet and Books Travel</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, authors and genres, & Nearby Readers...">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notificationBtn">
+                    🔔
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="icon-btn" id="messagesBtn">
+                    💬
+                    <span class="badge" id="messageCount">0</span>
+                </button>
+                <img id="profilePicture" src="../assets/user.jpg" alt="Profile" class="profile-picture">
+            </div>
+        </header>
+
+        <!--SIDEBAR-->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+            <ul>
+                <li>
+                    <a href="dashboard.html">🏠 Dashboard</a>
+                </li>
+                <li>
+                    <a href="mybooks.html">📚 My Books</a>
+                </li>
+                <li>
+                    <a href="browse.html">🔍 Browse Books</a>
+                </li>
+                <li>
+                    <a href="requests.html">🔄 Swap Requests</a>
+                </li>
+                <li>
+                    <a href="messages.html">💬 Messages</a>
+                </li>
+                <li>
+                    <a href="wishlist.html">❤️ Wishlist</a>
+                </li>
+                <li>
+                    <a href="readers.html">📍 Nearby Readers</a>
+                </li>
+            </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info">
+                    <img id="sidebarProfilePic" src="../assets/user.jpg" alt="Profile">
+                    <span id="sidebarUserName">Loading...</span>
+                </div>
+                <a href="profile.html" class="bottom-link">👤 Profile</a>
+                <a id="active" href="settings.html" class="bottom-link">⚙️ Settings</a>
+                <a href="#" id="logout-Btn" class="bottom-link">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <!--MAIN SECTION-->
+        <main class="main-content">
+            <section class="page-header">
+                <h1>⚙️ Settings</h1>
+            </section>
+            <section class="settings-section">
+
+                <!--ACCOUNT-->
+                <div class="settings-card">
+                    <h2>Account</h2>
+                    <button id="changePasswordBtn" class="primary-btn">Change Password</button>
+                </div>
+
+                <!--APPEARANCE-->
+                <div class="settings-card">
+                    <h2>Appearance</h2>
+                    <label>
+                        Theme
+                        <select id="themeSelect">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </label>
+                </div>
+
+                <!--NOTIFICATIONS-->
+                <div class="settings-card">
+                    <h2>Notifications</h2>
+                    <label>
+                        <input type="checkbox" id="disableSwapNotifications">
+                        Disable Swap Notifications
+                    </label>
+                    <label>
+                        <input type="checkbox" id="disableMessageNotifications">
+                        Disable Message Notifications
+                    </label>
+                </div>
+
+                <!--PRIVACY-->
+                <div class="settings-card">
+                    <h2>Privacy</h2>
+                    <label>
+                        <input type="checkbox" id="hideFromReaders">
+                        Hide Me From Nearby Readers
+                    </label>
+                </div>
+
+                <!--DELETE ACCOUNT-->
+                <div class="settings-card">
+                    <h2>Danger Zone</h2>
+                    <button id="deleteAccountBtn" class="delete-btn">Delete Account</button>
+                </div>
+            </section>
+        </main>
+
+        <!--CHANGE PASSWORD MODAL-->
+
+        <div id="PasswordModal" class="modal hidden">
+            <div class="modal-content profile-modal">
+                <h2>Change Password</h2>
+
+                <form id="passwordForm">
+                    <input type="password" id="newPassword" placeholder="New Password">
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+
+                    <div class="form-buttons">
+                        <button type="submit" class="edit-btn">Update Password</button>
+                        <button type="button" id="closePasswordModal" class="delete-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="notificationDropdown" class="notification-dropdown hidden">
+            <h3>Notifications</h3>
+            <div id="notificationsList"> </div>
+        </div>
+
+        <div id="deleteAccountModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>⚠ Delete Account</h2>
+                <p>This action is permanent.</p>
+                <p>
+                    Type <strong> DELETE</strong> to continue.
+                </p>
+                <input id="deleteConfirm" placeholder="Type DELETE">
+                <div class="form-buttons">
+                    <button id="cancelDelete" class="edit-btn">Cancel</button>
+                    <button id="confirmDelete" class="delete-btn">Delete Account</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="toastContainer"></div>
+
+
+        <script src="../js/toast.js"></script>
+        <script src="../js/search.js"></script>
+        <script src="../js/auth.js"></script>
+        <script src="../js/notifications.js"></script>
+        <script src="../js/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>SwapReads</title>
+    <link rel="icon" href="../assets/logo1.png">
+    <script src="../js/theme.js"></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!--Header-->
+        <header class="header">
+            <div class="logo-sec">
+                <img src="../assets/logo1.png" alt="logo">
+                <div class="logo-text">
+                <h2>SwapReads</h2>
+                <p class="slogan">Where Readers Meet and Books Travel</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, authors and genres, & Nearby Readers...">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notificationBtn">
+                    🔔
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="icon-btn" id="messagesBtn">
+                    💬
+                    <span class="badge" id="messageCount">0</span>
+                </button>
+                <img id="profilePicture" src="../assets/user.jpg" alt="Profile" class="profile-picture">
+            </div>
+        </header>
+
+        <!--SIDEBAR-->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+            <ul>
+                <li>
+                    <a href="dashboard.html">🏠 Dashboard</a>
+                </li>
+                <li>
+                    <a href="mybooks.html">📚 My Books</a>
+                </li>
+                <li>
+                    <a href="browse.html">🔍 Browse Books</a>
+                </li>
+                <li>
+                    <a href="requests.html">🔄 Swap Requests</a>
+                </li>
+                <li>
+                    <a href="messages.html">💬 Messages</a>
+                </li>
+                <li>
+                    <a href="wishlist.html">❤️ Wishlist</a>
+                </li>
+                <li>
+                    <a href="readers.html">📍 Nearby Readers</a>
+                </li>
+            </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info">
+                    <img id="sidebarProfilePic" src="../assets/user.jpg" alt="Profile">
+                    <span id="sidebarUserName">Loading...</span>
+                </div>
+                <a id="active" href="profile.html" class="bottom-link">👤 Profile</a>
+                <a href="settings.html" class="bottom-link">⚙️ Settings</a>
+                <a href="#" id="logout-Btn" class="bottom-link">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <!--MAIN SECTION-->
+        <main class="main-content">
+            <section class="profile-section">
+                <h1>👤 My Profile</h1>
+                <div class="profile-display">
+                    <div class="profile-image-wrapper">
+                        <img id="profilePreview" src="../assets/user.jpg" class="profile-large">
+                        <label id="uploadIcon" for="profileImage" class="camera-icon">📷</label>
+                        <input type="file" id="profileImage" accept="image/*" hidden>
+                    </div>
+                    <div>
+                        <h2 id="displayName">Loading...</h2>
+                        <p id="displayEmail">Loading...</p>
+                        <p>
+                            <strong>Member Since:</strong>
+                            <span id="memberSince">Loading...</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <p>
+                        <strong>Location:</strong>
+                        <span id="displayLocation">Not provided</span>
+                    </p>
+                    <p>
+                        <strong>About Me:</strong>
+                        <span id="displayBio">Not provided</span>
+                    </p>
+                    <p>
+                        <strong>Favourite Genres:</strong>
+                        <span id="displayGenres">Not selected</span>
+                    </p>
+
+                </div>
+
+                <button id="editProfileBtn" class="primary-btn">Edit Profile</button>
+
+                
+            </section>
+
+            <section>
+                    <div class="profile-stats">
+                        <div class="stat-box">
+                            <h3 id="booksCount">0</h3>
+                            <p>Books</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3 id="swapsCount">0</h3>
+                            <p>Completed Swaps</p>
+                        </div>
+                        <div class="stat-box">
+                            <h3 id="wishlistCount">0</h3>
+                            <p>Wishlist</p>
+                        </div>
+                    </div>
+                </section>
+
+        </main>
+
+
+        <!--Edit profile Modal-->
+        <div class="modal hidden" id="profileModal">
+            <div class="modal-content profile-modal">
+                <h2>Edit Profile</h2>
+
+                    <!--FORM-->
+                <form id="profileForm">
+                    <input type="text" id="fullName" placeholder="Full Name">
+                    <input type="text" id="location" placeholder="EG: Ruai, Nairobi">
+                    <textarea id="bio" placeholder="Tell readers about yourself"></textarea>
+
+                    <h3>Favourite Genre</h3>
+                    <div class="genre-grid">
+                        <label><input type="checkbox" value="Fantasy">Fantasy</label>
+                        <label><input type="checkbox" value="Biography/Memoir">Biography/Memoir</label>
+                        <label><input type="checkbox" value="Mystery">Mystery</label>
+                        <label><input type="checkbox" value="Thriller">Thriller</label>
+                        <label><input type="checkbox" value="Romance">Romance</label>
+                        <label><input type="checkbox" value="Science">Science</label>
+                        <label><input type="checkbox" value="Science Fiction">Science Fiction</label>
+                        <label><input type="checkbox" value="Horror">Horror</label>
+                        <label><input type="checkbox" value="Poetry">Poetry</label>
+                        <label><input type="checkbox" value="Technology">Technology</label>
+                        <label><input type="checkbox" value="Cybersecurity">Cybersecurity</label>
+                        <label><input type="checkbox" value="Programming">Programming</label>
+                        <label><input type="checkbox" value="History-Fiction">History-Fiction</label>
+                        <label><input type="checkbox" value="Self-Help">Self-Help</label>
+                        <label><input type="checkbox" value="Business">Business</label>
+                        <label><input type="checkbox" value="Others">Others</label>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="submit" class="edit-btn">Save Changes</button>
+                        <button type="button" id="closeProfileModal" class="delete-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="notificationDropdown" class="notification-dropdown hidden">
+            <h3>Notifications</h3>
+            <div id="notificationsList"> </div>
+        </div>
+
+        <div id="toastContainer"></div>
+
+
+        <script src="../js/toast.js"></script>
+        <script src="../js/search.js"></script>
+        <script src="../js/auth.js"></script>
+        <script src="../js/notifications.js"></script>
+        <script src="../js/profile.js"></script>
+    </body>
+</html>

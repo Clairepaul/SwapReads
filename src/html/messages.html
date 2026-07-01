@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>SwapReads</title>
+    <link rel="icon" href="../assets/logo1.png">
+    <script src="../js/theme.js"></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!--Header-->
+        <header class="header">
+            <div class="logo-sec">
+                <img src="../assets/logo1.png" alt="logo">
+                <div class="logo-text">
+                <h2>SwapReads</h2>
+                <p class="slogan">Where Readers Meet and Books Travel</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, authors and genres, & Nearby Readers...">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notificationBtn">
+                    🔔
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="icon-btn" id="messagesBtn">
+                    💬
+                    <span class="badge" id="messageCount">0</span>
+                </button>
+                <img id="profilePicture" src="../assets/user.jpg" alt="Profile" class="profile-picture">
+            </div>
+        </header>
+
+        <!--SIDEBAR-->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+            <ul>
+                <li>
+                    <a href="dashboard.html">🏠 Dashboard</a>
+                </li>
+                <li >
+                    <a href="mybooks.html">📚 My Books</a>
+                </li>
+                <li>
+                    <a href="browse.html">🔍 Browse Books</a>
+                </li>
+                <li>
+                    <a href="requests.html">🔄 Swap Requests</a>
+                </li>
+                <li class="active">
+                    <a href="messages.html">💬 Messages</a>
+                </li>
+                <li>
+                    <a href="wishlist.html">❤️ Wishlist</a>
+                </li>
+                <li>
+                    <a href="readers.html">📍 Nearby Readers</a>
+                </li>
+            </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info">
+                    <img id="sidebarProfilePic" src="../assets/user.jpg" alt="Profile">
+                    <span id="sidebarUserName">Loading...</span>
+                </div>
+                <a href="profile.html" class="bottom-link">👤 Profile</a>
+                <a href="settings.html" class="bottom-link">⚙️ Settings</a>
+                <a href="#" id="logout-Btn" class="bottom-link">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <!--MAIN CONTENT-->
+
+        <main class="main-content">
+            <section class="page-header">
+                <h1>💬 Messages</h1>
+            </section>
+            <section class="messages-layout">
+
+                <!--CONTACTS-->
+
+                <div class="chat-list">
+                    <div class="chat-list-header">
+
+                        <h2>Chats</h2>
+
+                    </div>
+                    <div id="chatUsers">
+
+                    </div>
+                </div>
+
+                <!--CHAT AREA-->
+
+                <div class="chat-section">
+                    <div id="chatPlaceholder" class="chat-placeholder">
+                        <div>
+                            <h2>💬 Open Chat</h2>
+                            <p>Select a conversation to start messaging</p>
+                        </div>
+                    </div>
+                    
+                    <div id="chatContent" class="hidden">
+                        <div class="chat-header">
+                            <div class="chat-user-info" id="chatHeaderInfo">
+                                
+                                <img id="chatUserAvatar" class="chat-avatar" src="../assets/user.jpg">
+                                
+                                <div>
+                                    <h3 id="chatUserName">Select User</h3>
+                                    <small id="chatUserBio"></small>
+                                </div>
+                            </div>
+                            
+                            <button id="chatMenuBtn"  class="icon-btn" onclick="toggleChatMenu()"> ⋮ </button>
+
+                            <div id="chatMenu" class="hidden">
+                                    <button onclick="viewChatInfo()"> View Info</button>
+                                    <button onclick="closeChat()">Close Chat</button>
+                                    <button onclick="deleteChat()">Delete Chat</button>
+                                </div>
+                        </div>
+                        
+                        
+                        
+                        <div id="messagesContainer" class="messages-container">
+
+                        </div>
+                        
+                        <div class="message-input">
+                            
+                            <input type="text" id="messageText" placeholder="Type a message">
+                            
+                            <button id="sendMessageBtn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+
+        <!--PROFILE MODAL-->
+
+        <div class="modal hidden" id="profileModal">
+            <div class="modal-content">
+
+                <img id="modalProfilePic" class="profile-large">
+
+                <h2 id="modalName"></h2>
+                <p id="modalBio"></p>
+                <p>
+                    <strong>Location:</strong> 
+                    <span id="modalLocation"></span>
+                </p>
+
+                <p>
+                    <strong>Genres:</strong> 
+                    <span id="modalGenres"></span>
+                </p>
+
+                <button id="closeProfileModal" class="delete-btn">Close</button>
+            </div>
+        </div>
+
+        <div id="notificationDropdown" class="notification-dropdown hidden">
+            <h3>Notifications</h3>
+            <div id="notificationsList"> </div>
+        </div>
+
+        <script src="../js/search.js"></script>
+        <script src="../js/auth.js"></script>
+        <script src="../js/notifications.js"></script>
+        <script src="../js/messages.js"></script>
+</body>
+</html>

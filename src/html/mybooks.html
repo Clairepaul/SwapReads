@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <title>SwapReads</title>
+    <link rel="icon" href="../assets/logo1.png">
+    <script src="../js/theme.js"></script>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!--Header-->
+        <header class="header">
+            <div class="logo-sec">
+                <img src="../assets/logo1.png" alt="logo">
+                <div class="logo-text">
+                <h2>SwapReads</h2>
+                <p class="slogan">Where Readers Meet and Books Travel</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, authors and genres, & Nearby Readers...">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notificationBtn">
+                    🔔
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="icon-btn" id="messagesBtn">
+                    💬
+                    <span class="badge" id="messageCount">0</span>
+                </button>
+                <img id="profilePicture" src="../assets/user.jpg" alt="Profile" class="profile-picture">
+            </div>
+        </header>
+
+        <!--SIDEBAR-->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+            <ul>
+                <li>
+                    <a href="dashboard.html">🏠 Dashboard</a>
+                </li>
+                <li class="active">
+                    <a href="mybooks.html">📚 My Books</a>
+                </li>
+                <li>
+                    <a href="browse.html">🔍 Browse Books</a>
+                </li>
+                <li>
+                    <a href="requests.html">🔄 Swap Requests</a>
+                </li>
+                <li>
+                    <a href="messages.html">💬 Messages</a>
+                </li>
+                <li>
+                    <a href="wishlist.html">❤️ Wishlist</a>
+                </li>
+                <li>
+                    <a href="readers.html">📍 Nearby Readers</a>
+                </li>
+            </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info">
+                    <img id="sidebarProfilePic" src="../assets/user.jpg" alt="Profile">
+                    <span id="sidebarUserName">Loading...</span>
+                </div>
+                <a href="profile.html" class="bottom-link">👤 Profile</a>
+                <a href="settings.html" class="bottom-link">⚙️ Settings</a>
+                <a href="#" id="logout-Btn" class="bottom-link">🚪 Logout</a>
+            </div>
+        </aside>
+        
+        <!--MAIN-SECTION-->
+        <main class="main-content">
+           <!--HEADER SEC-->
+           <section class="page-header">
+            <h1>📚 My Books</h1>
+            <button class="primary-btn" id="addBookBtn">+ Add New Book</button>
+           </section> 
+
+           <!--BOOK LIST-->
+
+           <section id="myBkContainer" class="books-grid">
+            <!--Example Book Card-->
+            <div class="book-card">
+                <img src="../assets/book1.jpg" class="book-cover">
+                <div class="book-info">
+                    <h3>The Name of the Rose</h3>
+                    <p>Author: Umberto Eco</p>
+                    <p>Genre: Mystery</p>
+                    <p>Status: Available</p>
+                    <p>Condition: Good</p>
+                </div>
+
+                <div class="book-actions">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">Delete</button>
+                </div>
+            </div>
+           </section>
+        </main>
+        <!-- ADD / EDIT BOOK MODAL-->
+         <div class="modal hidden" id="bookModal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Add Book</h2>
+                <form id="bookForm">
+                   <input type="text" id="title" placeholder="Book Title" required>
+                   <input type="text" id="author" placeholder="Author" required>
+                   <select id="genre" reqired>
+                    <option value="">
+                        Select Genre
+                    </option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Biography/Memoir">Biography/Memoir</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Science">Science</option>
+                    <option value="Science Fiction">Science Fiction</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Poetry">Poetry</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Cybersecurity">Cybersecurity</option>
+                    <option value="Programming">Programming</option>
+                    <option value="History">History-Fiction</option>
+                    <option value="Self-Help">Self-Help</option>
+                    <option value="Business">Business</option>
+                    <option value="Comics & Graphic Novels">Comics & Graphic Novels</option>
+                    <option value="Other">Other</option>
+                </select>
+                   <textarea id="description" placeholder="Description"></textarea>
+                   <input type="text" id="condition" placeholder="Condition (New/Good/Fair)" required>
+
+                   <select id="status">
+                    <option value="available">Available</option>
+                    <option value="pending">Pending Swap</option>
+                    <option value="swapped">Swapped</option>
+                   </select>
+
+                   <input type="file" id="cover">
+
+                   <div class="modal-actions">
+                    <button type="submit" class="edit-btn">Save Book</button>
+                    <button type="button" id="closeModal" class="delete-btn">Cancel</button>
+                   </div>
+                </form>
+            </div>
+         </div>
+
+         <!--Book Details-->
+         <div class="modal hidden" id="viewBookModal">
+            <div class="modal-content">
+                <img id="viewCover" class="book-cover-large">
+                <h2 id="viewTitle"></h2>
+                <p><strong>Author:</strong> <span id="viewAuthor"></span></p>
+                <p><strong>Genre:</strong> <span id="viewGenre"></span></p>
+                <p><strong>Condition:</strong> <span id="viewCondition"></span></p>
+                <p><strong>Status:</strong> <span id="viewStatus"></span></p>
+
+                <h3>Description</h3>
+
+
+                <p id="viewDescription"></p>
+
+
+                <button id="closeViewModal" class="delete-btn">
+
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <div id="notificationDropdown" class="notification-dropdown hidden">
+            <h3>Notifications</h3>
+            <div id="notificationsList"> </div>
+        </div>
+
+
+        <div id="toastContainer"></div>
+
+
+        <script src="../js/toast.js"></script>
+        <script src="../js/search.js"></script>
+         <script src="../js/auth.js"></script>
+         <script src="../js/notifications.js"></script>
+         <script src="../js/mybooks.js"></script>
+</body>
+</html>

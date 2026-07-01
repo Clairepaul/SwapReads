@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width"/>
+        <title>SwapReads</title>
+        <script src="../js/theme.js"></script>
+        <link rel="icon" href="/assets/logo1.png" type="image/x-icon">
+        <link rel="stylesheet" href="../css/dashboard.css">
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </head>
+    <body>
+        <!--Header-->
+        <header class="header">
+            <div class="logo-sec">
+                <img src="../assets/logo1.png" alt="logo">
+                <div class="logo-text">
+                <h2>SwapReads</h2>
+                <p class="slogan">Where Readers Meet and Books Travel</p>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search books, authors and genres, & Nearby Readers...">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" onclick="toggleNotifications()" id="notificationBtn">
+                    🔔
+                    <span class="badge" id="notificationCount">0</span>
+                </button>
+                <button class="icon-btn" id="messagesBtn">
+                    💬
+                    <span class="badge" id="messageCount">0</span>
+                </button>
+                <img id="profilePicture" src="../assets/user.jpg" alt="Profile" class="profile-picture">
+            </div>
+        </header>
+
+        <!--SIDEBAR-->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+            <ul>
+                <li class="active">
+                    <a href="dashboard.html">🏠 Dashboard</a>
+                </li>
+                <li>
+                    <a href="mybooks.html">📚 My Books</a>
+                </li>
+                <li>
+                    <a href="browse.html">🔍 Browse Books</a>
+                </li>
+                <li>
+                    <a href="requests.html">🔄 Swap Requests</a>
+                </li>
+                <li>
+                    <a href="messages.html">💬 Messages</a>
+                </li>
+                <li>
+                    <a href="wishlist.html">❤️ Wishlist</a>
+                </li>
+                <li>
+                    <a href="readers.html">📍 Nearby Readers</a>
+                </li>
+            </ul>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="user-info">
+                    <img id="sidebarProfilePic" src="../assets/user.jpg" alt="Profile">
+                    <span id="sidebarUserName">Loading...</span>
+                </div>
+                <a href="profile.html" class="bottom-link">👤 Profile</a>
+                <a href="settings.html" class="bottom-link">⚙️ Settings</a>
+                <a href="#" id="logout-Btn" class="bottom-link">🚪 Logout</a>
+            </div>
+        </aside>
+
+        <!--MAIN-SECTION-->
+        <main class="main-content">
+            <!--welcome sec-->
+            <section class="welcome-sec">
+                <div>
+                    <h1 id="welcome-msg">
+                        Welcome Back 👋
+                    </h1>
+                    <p>Discover, swap and share books with readers around the community.</p>
+                </div>
+            </section>
+            <!--Cards-->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <span class="card-icon">📚</span>
+                    <h3>My Books</h3>
+                    <h2 id="bookCount">0</h2>
+                </div>
+                <div class="stat-card">
+                    <span class="card-icon">🔄</span>
+                    <h3>Requests</h3>
+                    <h2 id="requestCount">0</h2>
+                </div>
+                <div class="stat-card">
+                    <span class="card-icon">💬</span>
+                    <h3>Messages</h3>
+                    <h2 id="messageCardCount">0</h2>
+                </div>
+                <div class="stat-card">
+                    <span class="card-icon">✅</span>
+                    <h3>Completed Swaps</h3>
+                    <h2 id="swapsCount">0</h2>
+                </div>
+            </section>
+            <section class="quick-actions">
+                <button class="primary-btn" id="addBookBtn">+ Add New Book</button>
+            </section>
+
+            <!--My Books-->
+
+            <section class="dashboard-section">
+                <div class="sec-header">
+                    <h2>My Books</h2>
+                    <a href="mybooks.html">View all</a>
+                </div>
+                <div id="myBkContainer" class="books-grid">
+
+                    <!--No books loaded from supabase-->
+
+                    <div class="empty-state">
+                        <h3>No Books Yet</h3>
+                        <p>Add your first book to start Swapping.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!--Available Books-->
+
+            <section class="dashboard-section">
+                <div class="sec-header">
+                    <h2>Available Books Near You</h2>
+                    <a href="browse.html">Browse All</a>
+                </div>
+                <div id="availableBKContainer" class="books-grid">
+                    <!--Other Users Books-->
+                </div>
+            </section>
+
+            <!--Recent Actions + Pending Requests-->
+
+            <section class="bottom-grid">
+                <!--Recent Actions-->
+
+                <div class="dashboard-section">
+                    <div class="sec-header">
+                        <h2>Recent Activity</h2>
+                    </div>
+                    <div id="activityContainer">
+                        <div class="empty-state">
+                            <p>Activity will appear here once you start using SwapReads.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!--Pending Requests-->
+                <div class="dashboard-section">
+                    <div class="sec-header">
+                        <h2>Pending Requests</h2>
+                        <a href="requests.html">View all</a>
+                    </div>
+                    <div id="pendingRequestsContainer">
+                        <div class="empty-state">
+                            <p>No Pending Requests.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!--Recommended Books-->
+
+            <section class="dashboard-section">
+                <div class="sec-header">
+                    <h2>Recommended For You.</h2>
+                </div>
+                <div id="RecommendedBks" class="books-grid">
+                    <!--Based on User genres-->
+                </div>
+            </section>
+        </main>
+
+        <!--Books Details-->
+        <!--Book Details-->
+         <div class="modal hidden" id="viewBookModal">
+            <div class="modal-content">
+                <img id="viewCover" class="book-cover-large">
+                <h2 id="viewTitle"></h2>
+                <p><strong>Author:</strong> <span id="viewAuthor"></span></p>
+                <p><strong>Genre:</strong> <span id="viewGenre"></span></p>
+                <p><strong>Condition:</strong> <span id="viewCondition"></span></p>
+                <p><strong>Status:</strong> <span id="viewStatus"></span></p>
+
+                <h3>Description</h3>
+
+
+                <p id="viewDescription"></p>
+
+
+                <button id="closeViewModal" class="delete-btn">
+
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <div id="notificationDropdown" class="notification-dropdown hidden">
+            <h3>Notifications</h3>
+            <div id="notificationsList"> </div>
+        </div>
+
+        <script src="../js/search.js"></script>
+        <script src="../js/auth.js"></script>
+        <script src="../js/notifications.js"></script>
+        <script src="../js/dashboard.js"></script>
+    </body>
+</html>
