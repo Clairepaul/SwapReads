@@ -761,6 +761,32 @@ display:none !important;
     gap:10px;
 }
 
+.request-delete{
+
+    position:absolute;
+
+    top:12px;
+
+    right:12px;
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    color:#999;
+
+    font-size:18px;
+
+}
+
+.request-delete:hover{
+
+    color:red;
+
+}
+
 /*MESSAGES LAYOUT*/
 .messages-layout{
     display:flex;

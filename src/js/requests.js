@@ -137,7 +137,8 @@ async function loadIncomingRequests(){
         cover_url
         )
         `)
-    .eq("owner_id", user.id);
+    .eq("owner_id", user.id)
+    .eq("owner_deleted", false);
 
     const {
         data: profiles,
@@ -195,6 +196,7 @@ async function loadOutgoingRequests(){
         )
     `)
     .eq("requester_id", user.id)
+    .eq("requester_deleted", false)
     .order(
         "created_at",
         {
@@ -345,7 +347,13 @@ onclick="completeSwap('${req.id}')">
 <button
 class="delete-btn" onclick="cancelSwap('${req.id}')"> ❌ Cancel Swap </button>
 `
-                : ""
+                : 
+                ["completed","cancelled","declined"].includes(req.status)?
+                `<button class="request-delete" onclick="deleteIncomingRequest('${req.id}')"> 
+                🗑 Remove
+                </button>
+                `
+                :""
             }
 
         </div>
@@ -497,6 +505,15 @@ function renderOutgoingRequests(
                     💬 Message
 
                 </button>
+
+                ${
+                    ["completed","cancelled","declined"].includes(req.status)?
+                    `<button class="request-delete" onclick="deleteOutgoingRequest('${req.id}')">
+                    🗑 Remove
+                    </button>
+                    `
+                    : ""
+                }
 
                 </div>
 
@@ -779,130 +796,6 @@ async function completeSwap(id){
 }
 
 
-/*
-async function completeSwap(id){
-
-    const {
-        data: request
-    } = await supabaseClient
-    .from("swap_requests")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-    const {
-        data: book
-    } = await supabaseClient
-    .from("books")
-    .select("title")
-    .eq("id", request.book_id)
-    .single();
-
-
-    // Complete request
-
-    await supabaseClient
-    .from("swap_requests")
-    .update({
-
-        status:"completed",
-        completed_at:new Date()
-
-    })
-    .eq("id", id);
-
-    await createNotification(
-
-    request.owner_id,
-
-    "Swap Completed",
-
-    `Congrats! Your swap for "${book.title}" has been completed.`
-
-);
-
-await createNotification(
-
-    request.requester_id,
-
-    "Swap Completed",
-
-    `Congrats! Your swap for "${book.title}" has been completed.`
-
-);
-
-    // Mark book swapped
-
-    // Mark owner's book swapped
-
-const ownerUpdate =
-await supabaseClient
-.from("books")
-.update({
-    status:"swapped"
-})
-.eq(
-    "id",
-    request.book_id
-)
-.select();
-
-console.log(
-    "OWNER UPDATE:",
-    ownerUpdate
-);
-
-// Mark requester's book swapped
-
-const requesterUpdate = await supabaseClient
-.from("books")
-.update({
-    status:"swapped"})
-    .eq(
-        "id",
-        request.requester_book_id
-    )
-    .select();
-    console.log("REQUESTER UPDATE:", requesterUpdate);
-
-
-
-await supabaseClient
-.from("activity_log")
-.insert([
-
-    {
-
-        user_id:
-        request.owner_id,
-
-        activity:
-        `Completed swap for "${book.title}"`
-
-    },
-
-    {
-
-        user_id:
-        request.requester_id,
-
-        activity:
-        `Completed swap for "${book.title}"`
-
-    }
-
-]);
-    
-
-    alert(
-        "Swap completed."
-    );
-
-    loadIncomingRequests();
-
-    loadOutgoingRequests();
-}
-*/
 
 async function cancelSwap(id){
 
@@ -970,134 +863,100 @@ async function cancelSwap(id){
 
 }
 
-/*
-async function cancelSwap(id){
+async function deleteIncomingRequest(requestId){
 
-    const {
-        data: request
-    } = await supabaseClient
-    .from("swap_requests")
-    .select(`*,
-        books(
-        title,
-        user_id
-        )
-        `)
-        .eq("id", id)
-        .single();
-
-        const {
-            data: ownerProfile
-        } = await supabaseClient
-        .from("profiles")
-        .select("full_name")
-        .eq("id",
-            request.owner_id
-        )
-        .single();
-
-
-    // Return book to available
-
-    await supabaseClient
-    .from("books")
-    .update({
-
-        status:"available"
-
-    })
-    .eq(
-        "id",
-        request.book_id
-    );
-
-    await createNotification(
-
-    request.requester_id,
-
-    "Swap Cancelled",
-
-    `${ownerProfile.full_name} has cancelled your book swap for "${request.books.title}" and it is now available again.`
-
-);
-
-    // Cancel accepted request
-
+    const { error } =
     await supabaseClient
     .from("swap_requests")
     .update({
-
-        status:"cancelled"
-
+        owner_deleted:true
     })
-    .eq(
-        "id",
-        id
-    );
+    .eq("id",requestId);
 
-    // Re-open declined requests
+    if(error){
 
-    const {
-        data: oldRequests
-    } =
-    await supabaseClient
-    .from("swap_requests")
-    .select("*")
-    .eq(
-        "book_id",
-        request.book_id
-    )
-    .eq(
-        "status",
-        "declined"
-    );
+        showToast(error.message);
 
-    if(oldRequests){
-
-        for(const item of oldRequests){
-
-            await supabaseClient
-            .from("swap_requests")
-            .update({
-                status:"pending"
-            })
-            .eq("id",item.id
-
-            );
-
-            await supabaseClient
-            .from("notifications")
-            .insert({
-
-                user_id:
-                item.requester_id,
-
-                title:
-                "Book Available Again",
-
-                message:
-                `${ownerProfile.full_name}'s book "${request.books.title}" is available again. You can submit a new swap request.`
-
-        
-
-            });
-
-        }
+        return;
 
     }
 
-    alert(
-        "Swap cancelled."
-    );
+    await permanentlyDelete(requestId);
+
+    showToast("Request removed.");
 
     loadIncomingRequests();
 
-    loadOutgoingRequests();
 }
-*/
+
+async function deleteOutgoingRequest(requestId){
+
+    const { error } =
+    await supabaseClient
+    .from("swap_requests")
+    .update({
+        requester_deleted:true
+    })
+    .eq("id",requestId);
+
+    if(error){
+
+        showToast(error.message);
+
+        return;
+
+    }
+
+    await permanentlyDelete(requestId);
+
+    showToast("Request removed.");
+
+    loadOutgoingRequests();
+
+}
+
+async function permanentlyDelete(requestId){
+
+    const {
+
+        data
+
+    } =
+
+    await supabaseClient
+
+    .from("swap_requests")
+
+    .select("owner_deleted, requester_deleted")
+
+    .eq("id",requestId)
+
+    .single();
+
+    if(
+
+        data.owner_deleted &&
+
+        data.requester_deleted
+
+    ){
+
+        await supabaseClient
+
+        .from("swap_requests")
+
+        .delete()
+
+        .eq("id",requestId);
+
+    }
+
+}
+
 
 function openChat(userId){
 
     window.location.href =
         `messages.html?user=${userId}`;
 }
+
