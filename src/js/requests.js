@@ -349,7 +349,7 @@ class="delete-btn" onclick="cancelSwap('${req.id}')"> ❌ Cancel Swap </button>
 `
                 : 
                 ["completed","cancelled","declined"].includes(req.status)?
-                `<button class="request-delete" onclick="deleteIncomingRequest('${req.id}')"> 
+                `<button class="request-delete" title="Delete" onclick="deleteIncomingRequest('${req.id}')"> 
                 🗑
                 </button>
                 `
@@ -508,7 +508,7 @@ function renderOutgoingRequests(
 
                 ${
                     ["completed","cancelled","declined"].includes(req.status)?
-                    `<button class="request-delete" onclick="deleteOutgoingRequest('${req.id}')">
+                    `<button class="request-delete" title="Delete" onclick="deleteOutgoingRequest('${req.id}')">
                     🗑
                     </button>
                     `
