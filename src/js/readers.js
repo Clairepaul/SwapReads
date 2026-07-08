@@ -236,9 +236,11 @@ async function renderReaders(
             <p>
 
                 ${
-                    reader.bio ||
-                    'Book lover'
+                    (reader.bio ||
+                    'Book lover')
+                    .substring(0, 120)
                 }
+                ...
 
             </p>
 
