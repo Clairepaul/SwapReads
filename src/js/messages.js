@@ -679,7 +679,6 @@ async function sendMessage(){
     input.value = "";
 
     await loadMessages();
-    await loadChatUsers();
 }
 
 
