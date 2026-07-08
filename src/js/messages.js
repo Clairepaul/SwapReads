@@ -272,6 +272,27 @@ async function loadChatUsers(){
 
     });
 
+    // =====================================
+// ALSO INCLUDE USERS YOU HAVE MESSAGED
+// =====================================
+    const {
+        data: messages
+    } = 
+    await supabaseClient
+    .from("messages")
+    .select("sender_id, receiver_id");
+    
+    messages.forEach(msg=>{
+        
+        if(msg.sender_id === user.id){
+            userIds.add(msg.receiver_id);
+        }
+        
+        if(msg.receiver_id === user.id){
+            userIds.add(msg.sender_id);
+        }
+    });
+
     const chatUsers =
         document.getElementById(
             "chatUsers"
@@ -468,6 +489,7 @@ async function openChat(userId){
 
     await loadMessages();
     await loadUnreadCount();
+    await loadChatUsers();
    
 }
 
@@ -658,6 +680,7 @@ async function sendMessage(){
     input.value = "";
 
     await loadMessages();
+    await loadChatUsers();
 }
 
 
