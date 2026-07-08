@@ -489,7 +489,6 @@ async function openChat(userId){
 
     await loadMessages();
     await loadUnreadCount();
-    await loadChatUsers();
    
 }
 
