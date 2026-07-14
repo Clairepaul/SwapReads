@@ -1,204 +1,285 @@
 import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
-
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/cors.ts";
 import { deleteProfile } from "../_shared/profile.ts";
 
-export default {
+Deno.serve(async (req) => {
 
-    fetch: withSupabase(
+    if (req.method === "OPTIONS") {
+    return new Response("ok", {
+        headers: corsHeaders,
+    });
+}
 
-        {
+    try {
 
-            auth: ["publishable", "secret"]
+        const authHeader = req.headers.get("Authorization");
 
-        },
+        if (!authHeader) {
 
-        async (req, ctx) => {
-
-            try {
-
-                const {
-
-                    data: {
-
-                        user
-
-                    }
-
-                } =
-                await ctx.supabase.auth.getUser();
-
-                if (!user) {
-
-                    return Response.json(
-
-                        {
-
-                            error: "Unauthorized"
-
-                        },
-
-                        {
-
-                            status: 401
-
-                        }
-
-                    );
-
+            return Response.json(
+                {
+                    success: false,
+                    error: "Missing Authorization header."
+                },
+                {
+                    status: 401,
+                    headers: corsHeaders
                 }
+            );
 
-                const userId = user.id;
+        }
 
-                // Wishlist
+        // Client using the user's JWT
+        const supabase = createClient(
 
-                await ctx.supabaseAdmin
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_ANON_KEY")!,
 
-                    .from("wishlist")
+            {
+                global: {
 
-                    .delete()
+                    headers: {
 
-                    .eq("user_id", userId);
-
-                // Notifications
-
-                await ctx.supabaseAdmin
-
-                    .from("notifications")
-
-                    .delete()
-
-                    .eq("user_id", userId);
-
-                // Activity
-
-                await ctx.supabaseAdmin
-
-                    .from("activity_log")
-
-                    .delete()
-
-                    .eq("user_id", userId);
-
-                // Swap requests
-
-                await ctx.supabaseAdmin
-
-                    .from("swap_requests")
-
-                    .delete()
-
-                    .or(
-
-                        `owner_id.eq.${userId},requester_id.eq.${userId}`
-
-                    );
-
-                // Messages
-
-                await ctx.supabaseAdmin
-
-                    .from("messages")
-
-                    .delete()
-
-                    .or(
-
-                        `sender_id.eq.${userId},receiver_id.eq.${userId}`
-
-                    );
-
-                // Books
-
-                const {
-
-                    data: books
-
-                } =
-                await ctx.supabaseAdmin
-
-                    .from("books")
-
-                    .select("*")
-
-                    .eq("user_id", userId);
-
-                if (books) {
-
-                    for (const book of books) {
-
-                        await ctx.supabaseAdmin
-
-                            .from("books")
-
-                            .delete()
-
-                            .eq("id", book.id);
+                        Authorization: authHeader
 
                     }
 
                 }
-
-                // Profile
-
-                await deleteProfile(
-
-                    ctx.supabaseAdmin,
-
-                    userId
-
-                );
-
-                // Auth user
-
-                await ctx.supabaseAdmin
-
-                    .auth
-
-                    .admin
-
-                    .deleteUser(
-
-                        userId
-
-                    );
-
-                return Response.json({
-
-                    success: true,
-
-                    message:
-
-                    "Account deleted successfully."
-
-                });
 
             }
 
-            catch (err: any) {
+        );
 
-                return Response.json(
+        // Admin client
+        const supabaseAdmin = createClient(
 
-                    {
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 
-                        success: false,
+        );
 
-                        error: err.message
+        // Get authenticated user
+        const {
 
-                    },
+            data: { user },
 
-                    {
+            error: authError
 
-                        status: 500
+        } = await supabase.auth.getUser();
 
-                    }
+        if (authError || !user) {
 
-                );
+            return Response.json(
+
+                {
+
+                    success: false,
+
+                    error:
+                        authError?.message ||
+                        "Unauthorized"
+
+                },
+
+                {
+
+                    status: 401,
+                    headers:corsHeaders
+
+                }
+
+            );
+
+        }
+
+        const userId = user.id;
+
+        // ============================
+        // DELETE WISHLIST
+        // ============================
+
+        await supabaseAdmin
+
+            .from("wishlist")
+
+            .delete()
+
+            .eq("user_id", userId);
+
+        // ============================
+        // DELETE NOTIFICATIONS
+        // ============================
+
+        await supabaseAdmin
+
+            .from("notifications")
+
+            .delete()
+
+            .eq("user_id", userId);
+
+        // ============================
+        // DELETE ACTIVITY LOG
+        // ============================
+
+        await supabaseAdmin
+
+            .from("activity_log")
+
+            .delete()
+
+            .eq("user_id", userId);
+
+        // ============================
+        // DELETE SWAP REQUESTS
+        // ============================
+
+        await supabaseAdmin
+
+            .from("swap_requests")
+
+            .delete()
+
+            .or(
+
+                `owner_id.eq.${userId},requester_id.eq.${userId}`
+
+            );
+
+        // ============================
+        // DELETE MESSAGES
+        // ============================
+
+        await supabaseAdmin
+
+            .from("messages")
+
+            .delete()
+
+            .or(
+
+                `sender_id.eq.${userId},receiver_id.eq.${userId}`
+
+            );
+
+        // ============================
+        // DELETE BOOKS
+        // ============================
+
+        const {
+
+            data: books,
+
+            error: booksError
+
+        } = await supabaseAdmin
+
+            .from("books")
+
+            .select("id")
+
+            .eq("user_id", userId);
+
+        if (booksError) {
+
+            throw booksError;
+
+        }
+
+        if (books && books.length > 0) {
+
+            for (const book of books) {
+
+                await supabaseAdmin
+
+                    .from("books")
+
+                    .delete()
+
+                    .eq("id", book.id);
 
             }
 
         }
 
-    )
+        // ============================
+        // DELETE PROFILE
+        // ============================
 
-};
+        await deleteProfile(
+
+            supabaseAdmin,
+
+            userId
+
+        );
+
+        // ============================
+        // DELETE AUTH USER
+        // ============================
+
+        const {
+
+            error: deleteUserError
+
+        } = await supabaseAdmin
+
+            .auth
+
+            .admin
+
+            .deleteUser(userId);
+
+        if (deleteUserError) {
+
+            throw deleteUserError;
+
+        }
+
+        return Response.json(
+
+            {
+
+                success: true,
+
+                message:
+                    "Account deleted successfully."
+
+            },
+            {
+                headers: corsHeaders
+            }
+
+        );
+
+    }
+
+    catch (err: any) {
+
+        console.error(err);
+
+        return Response.json(
+
+            {
+
+                success: false,
+
+                error:
+                    err.message ||
+                    "Unexpected server error."
+
+            },
+
+            {
+
+                status: 500,
+                headers:corsHeaders
+
+            }
+
+        );
+
+    }
+
+});

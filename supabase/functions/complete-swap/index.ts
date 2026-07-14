@@ -146,6 +146,41 @@ export default {
 
                 );
 
+                // Increment owner's completed swaps
+
+                const {
+                    data: ownerProfile
+                } = await ctx.supabaseAdmin
+                .from("profiles")
+                .select("completed_swaps")
+                .eq("id", swap.owner_id)
+                .single();
+                
+                await ctx.supabaseAdmin
+                .from("profiles")
+                .update({
+                    completed_swaps:(ownerProfile?.completed_swaps || 0) + 1
+                })
+                .eq("id", swap.owner_id);
+
+
+                // Increment requester's completed swaps
+
+                const {
+                    data: requesterProfile
+                } = await ctx.supabaseAdmin
+                .from("profiles")
+                .select("completed_swaps")
+                .eq("id", swap.requester_id)
+                .single();
+                
+                await ctx.supabaseAdmin
+                .from("profiles")
+                .update({
+                    completed_swaps:(requesterProfile?.completed_swaps || 0) + 1
+                })
+                .eq("id", swap.requester_id);
+
                 // Notifications
 
                 await createNotification(

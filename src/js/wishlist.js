@@ -258,6 +258,16 @@ async function removeWishlist(bookId){
 
     const user = session?.user;
 
+    // Get book title for activity log
+    const {
+        data: book
+    } =
+    await supabaseClient
+    .from("books")
+    .select("title")
+    .eq("id", bookId)
+    .single();
+
     const { error } =
     await supabaseClient
     .from("wishlist")
@@ -270,9 +280,28 @@ async function removeWishlist(bookId){
         showToast(error.message);
 
         return;
+
     }
 
+    // Activity Log
+    const { error: activityError } =
+    await supabaseClient
+    .from("activity_log")
+    .insert({
+        user_id: user.id,
+        activity: `Removed "${book.title}" from wishlist.`
+    });
+
+    if(activityError){
+
+        console.error(activityError);
+
+    }
+
+    showToast("Book removed from wishlist.");
+
     loadWishlist();
+
 }
 
 async function viewBook(id){

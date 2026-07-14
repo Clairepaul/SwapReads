@@ -316,6 +316,7 @@ async function loadBooks() {
         .from("books")
         .select("*")
         .eq("user_id", user.id)
+        .eq("hidden_by_owner", false)
         .order("created_at", {
             ascending: false
         });
@@ -485,27 +486,190 @@ async function editBook(id){
 
 async function deleteBook(id){
 
-    const confirmed =
-        confirm(
-            "Delete this book?"
-        );
+    const confirmed = confirm("Delete this book?");
 
     if(!confirmed) return;
 
-    const { error } =
-        await supabaseClient
-        .from("books")
-        .delete()
-        .eq("id", id);
+    const {
+        data:{session}
+    } = await supabaseClient.auth.getSession();
 
-    if(error){
+    const user = session?.user;
 
-        showToast(error.message);
+    // Get the book
+    const {
+        data: book,
+        error: bookError
+    } = await supabaseClient
+    .from("books")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+    if(bookError){
+
+        showToast(bookError.message);
+
+        return;
+
+    }
+
+    // ===========================
+    // AVAILABLE BOOK
+    // Delete completely
+    // ===========================
+
+    if (book.status === "available") {
+
+    // Check if this book has any active swap request
+    const { data: request } = await supabaseClient
+        .from("swap_requests")
+        .select("*")
+        .eq("book_id", id)
+        .in("status", ["pending", "accepted"])
+        .maybeSingle();
+
+    // No requests -> delete normally
+    if (!request) {
+
+        const { error } = await supabaseClient
+            .from("books")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            showToast(error.message);
+            return;
+        }
+
+        const { error: activityError } = await supabaseClient
+            .from("activity_log")
+            .insert({
+                user_id: user.id,
+                activity: `Deleted "${book.title}".`
+            });
+
+            console.log("Activity Error:", activityError);
+
+            if (activityError) {
+                console.error(activityError);
+            }
+
+        showToast("Book deleted.");
+
+        loadBooks();
 
         return;
     }
 
-    loadBooks();
+    // Pending request
+    if (request.status === "pending") {
+
+        // Return requester's book to available
+        await supabaseClient
+            .from("books")
+            .update({
+                status: "available"
+            })
+            .eq("id", request.requester_book_id);
+
+        // Delete the request
+        await supabaseClient
+            .from("swap_requests")
+            .delete()
+            .eq("id", request.id);
+
+        // Delete wishlist entries for this book
+        await supabaseClient
+            .from("wishlist")
+            .delete()
+            .eq("book_id", id);
+
+        // Delete the owner's book
+        const { error } = await supabaseClient
+            .from("books")
+            .delete()
+            .eq("id", id);
+
+        if (error) {
+            showToast(error.message);
+            return;
+        }
+
+        const { error: activityError } = await supabaseClient
+            .from("activity_log")
+            .insert({
+                user_id: user.id,
+                activity: `Deleted "${book.title}".`
+            });
+
+            console.log("Activity Error:", activityError);
+            
+            if (activityError) {
+                console.error(activityError);
+            }
+
+        showToast("Book and pending request deleted.");
+
+        loadBooks();
+
+        return;
+    }
+
+    // Accepted request
+    if (request.status === "accepted") {
+
+        showToast(
+            "This book has an accepted swap. Complete or cancel the swap before deleting it."
+        );
+
+        return;
+    }
+
+}
+
+    // ===========================
+    // COMPLETED / SWAPPED
+    // ===========================
+
+    if(book.status === "swapped"){
+
+        const { error } = await supabaseClient
+        .from("books")
+        .update({
+            hidden_by_owner:true
+        })
+
+        .eq("id",id);
+
+        if(error){
+
+            showToast(error.message);
+
+            return;
+
+        }
+
+        const { error: activityError } = await supabaseClient
+        .from("activity_log")
+        .insert({
+            user_id: user.id,
+            activity: `Archived "${book.title}" after swap completion.`
+        });
+
+        console.log("Activity Error:", activityError);
+        
+        if (activityError) {
+
+            console.error(activityError);
+        }
+
+        showToast("Book Deleted from your list.");
+
+        loadBooks();
+
+    }
+
 }
 
 //VIEW BOOK

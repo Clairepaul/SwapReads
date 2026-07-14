@@ -351,6 +351,10 @@ async function deleteAccount(){
         .auth
         .getSession();
 
+        console.log(session);
+
+        console.log(session?.access_token);
+
         const response =
         await fetch(
 

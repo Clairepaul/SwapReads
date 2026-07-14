@@ -180,7 +180,7 @@ async function renderReaders(
             "status",
             "available"
         );
-
+/*
         const {
             count:swapsCount
         } =
@@ -200,7 +200,7 @@ async function renderReaders(
         .or(
             `owner_id.eq.${reader.id},requester_id.eq.${reader.id}`
         );
-
+*/
         container.innerHTML += `
 
         <div class="reader-card">
@@ -253,7 +253,7 @@ async function renderReaders(
 
             <p>
 
-                🔄 ${swapsCount}
+                🔄 ${reader.completed_swaps || 0}
                 Completed Swaps
 
             </p>
@@ -326,7 +326,7 @@ async function viewReader(
         "user_id",
         userId
     );
-
+/*
     const {
         count:swapsCount
     } =
@@ -346,6 +346,7 @@ async function viewReader(
     .or(
         `owner_id.eq.${userId},requester_id.eq.${userId}`
     );
+    */
 
     document.getElementById(
         "readerAvatar"
@@ -384,7 +385,7 @@ async function viewReader(
     document.getElementById(
         "readerSwaps"
     ).textContent =
-    swapsCount;
+    reader.completed_swaps || 0;
 
     document
     .getElementById(
