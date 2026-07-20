@@ -4,6 +4,7 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
+    font-family: "Inter", sans-serif;
 }
 .sidebar{
     background-color: rgba(19, 198, 198, 0.462);
